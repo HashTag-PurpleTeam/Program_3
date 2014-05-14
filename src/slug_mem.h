@@ -1,14 +1,12 @@
 /* slug_mem.h
  *
+ * Header file for slug_mem.c
+ *
  * CREATED: Leland Miller (5/14/14)
  */
 
-/* LM: The following defines were recommended in the assignment
- *     specs. */
-#define malloc(s) slug_malloc((s))
-#define malloc(s) slug_malloc((s), FILE_POS)
+#include "slug_mem.c"
 
-#define FUNCTIONIZE(a,b) a(b)
-#define STRINGIZE(a) #a
-#define INT2STRING(i) FUNCTIONIZE(STRINGIZE,i)
-#define FILE_POS __FILE__ ":" INT2STRING(__LINE__)
+void *slug_malloc ( size_t size, char *WHERE );
+void slug_free ( void *addr, char *WHERE );
+void slug_memstats ( void );
