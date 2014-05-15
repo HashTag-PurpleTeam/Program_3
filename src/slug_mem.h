@@ -17,3 +17,4 @@
 #define INT2STRING(i) FUNCTIONIZE(STRINGIZE,i)
 #define FILE_POS __FILE__ ":" INT2STRING(__LINE__)
 
+void slug_memstats(void);
