@@ -18,36 +18,35 @@
 
 
 #include <stdlib.h>
-<<<<<<< HEAD
 #include <errno.h>
 #include <stdio.h>
+#include <time.h>
+#include <string.h>
+
+typedef struct node *node_ref;
+
+struct malloc_list {
+	node_ref head;
+	node_ref tail;
+	node_ref curr; /* can be used for traversing the list in for loops */
+};
 
 struct node {
 	size_t size;
-=======
-#include <time.h>
-#include <stdio.h>
-
-struct node 
-{
-	size_t len;
->>>>>>> e6705fa9e01ad5a718e9ed673084997a8124f4fd
-	void addr;
+	unsigned addr;
 	time_t alloc_time;
 	time_t free_time;
 	char *alloc_location;
 	char *free_location;
 	int is_free;
-	node *next;
+	node_ref next;
 };
 
-struct malloc_list {
-	node head;
-	node tail;
-	node curr; /* can be used for traversing the list in for loops */
-};
-
-struct malloc_list m_list = malloc(sizeof(struct malloc_list));
+int main( void )
+{
+	struct malloc_list *m_list = malloc(sizeof(struct malloc_list));
+	m_list->head = m_list->tail = m_list->curr = NULL;
+}
 
 /* 
 Allocates memory by calling malloc.
@@ -58,7 +57,8 @@ WHERE is a string constant that records the filename and line number of caller.
 */
 void *slug_malloc ( size_t size, char *WHERE )
 {
-<<<<<<< HEAD
+	node_ref tmp = malloc(sizeof(struct node));
+	
 	if(size <= 0) {
 		fprintf(stderr, "%s\n", strerror(errno));
 	}
@@ -68,9 +68,8 @@ void *slug_malloc ( size_t size, char *WHERE )
 		exit(1); /*terminate program*/
 	}
 	
-	struct node tmp = malloc(sizeof(struct node));
 	tmp->size = size;
-	void *address = tmp->addr = malloc(sizeof(size));
+	tmp->addr = malloc(sizeof(size));
 	tmp->alloc_time = time(NULL);
 	tmp->free_time = NULL;
 	tmp->alloc_location = WHERE;
@@ -79,19 +78,13 @@ void *slug_malloc ( size_t size, char *WHERE )
 	tmp->next = NULL;
 	m_list->tail->next = tmp;
 	m_list->tail = m_list->tail->next;
+	free(tmp);
 	
-	return address;
-=======
-    TRACE("slug_malloc\n"); 
-    printf("@ %s", WHERE);
-
-	/* if (size <= 0) print to stderr, don't exit
-	if( size > 128 MB) print to stderr, exit the program */
-	unsigned request = malloc(sizeof(size));
-	return request;
+	return m_list->tail->addr;
+    /*TRACE("slug_malloc\n"); 
+    printf("@ %s", WHERE);*/
     /* LM: this is what I had before can delete */
     /* return malloc(size); */
->>>>>>> e6705fa9e01ad5a718e9ed673084997a8124f4fd
 }
 
 void slug_free ( void *addr, char *WHERE )
@@ -102,10 +95,10 @@ void slug_free ( void *addr, char *WHERE )
 
 void slug_memstats ( void )
 {
-<<<<<<< HEAD
+
 }
 
-void alloc_new_node( size_t size )
+/*void alloc_new_node( size_t size )
 {
 	struct node tmp = malloc(sizeof(node));
 	tmp->size = size;
@@ -115,9 +108,4 @@ void alloc_new_node( size_t size )
 	tmp->location = 
 	m_list->tail->next = tmp;
 	m_list->tail = m_list->tail->next;
-}
-=======
-    TRACE("slug_memstats");
-}    
-
->>>>>>> e6705fa9e01ad5a718e9ed673084997a8124f4fd
+} */   
