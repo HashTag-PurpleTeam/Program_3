@@ -16,14 +16,14 @@
 #define TRACE(s) 
 #endif
 
-
 #include <stdlib.h>
-#include <errno.h>
 #include <stdio.h>
+#include <errno.h>
 #include <time.h>
 #include <string.h>
 
 typedef struct node *node_ref;
+typedef struct malloc_list *m_list;
 
 struct malloc_list {
 	node_ref head;
@@ -33,7 +33,7 @@ struct malloc_list {
 
 struct node {
 	size_t size;
-	unsigned addr;
+	unsigned *addr;
 	time_t alloc_time;
 	time_t free_time;
 	char *alloc_location;
@@ -42,11 +42,7 @@ struct node {
 	node_ref next;
 };
 
-int main( void )
-{
-	struct malloc_list *m_list = malloc(sizeof(struct malloc_list));
-	m_list->head = m_list->tail = m_list->curr = NULL;
-}
+m_list list = NULL;
 
 /* 
 Allocates memory by calling malloc.
@@ -58,6 +54,15 @@ WHERE is a string constant that records the filename and line number of caller.
 void *slug_malloc ( size_t size, char *WHERE )
 {
 	node_ref tmp = malloc(sizeof(struct node));
+	char *what = "HELLO WORLD!";
+	if(list == NULL) {
+		list = malloc(sizeof(struct malloc_list));
+		list->head = list->tail = list->curr = NULL;
+		printf("list allocated \n");
+	}
+	
+	printf("WHERE = %s\n", WHERE);
+	printf("IN SLUG_MALLOC WOOHOO!\nsize=%d\n", size);
 	
 	if(size <= 0) {
 		fprintf(stderr, "%s\n", strerror(errno));
@@ -68,19 +73,23 @@ void *slug_malloc ( size_t size, char *WHERE )
 		exit(1); /*terminate program*/
 	}
 	
+	printf("past size conditionals\n");
+
 	tmp->size = size;
+	printf("free my nigga earl\n");
 	tmp->addr = malloc(sizeof(size));
 	tmp->alloc_time = time(NULL);
-	tmp->free_time = NULL;
+	tmp->free_time = 0;
 	tmp->alloc_location = WHERE;
 	tmp->free_location = NULL;
 	tmp->is_free = 0;
 	tmp->next = NULL;
-	m_list->tail->next = tmp;
-	m_list->tail = m_list->tail->next;
+	list->tail->next = tmp;
+	list->tail = list->tail->next;
 	free(tmp);
 	
-	return m_list->tail->addr;
+	return list->tail->addr;
+	
     /*TRACE("slug_malloc\n"); 
     printf("@ %s", WHERE);*/
     /* LM: this is what I had before can delete */
