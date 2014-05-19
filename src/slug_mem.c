@@ -20,20 +20,31 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 typedef struct node node;
 struct node 
 {
 	size_t len;
 	void *addr;
-	time_t timestap;
+	time_t timestamp;
 	char *location;
-	int is_free;
+	bool is_free;
 	node *next;
 };
 
-node head;
-node tail;
+node *head = NULL;
+node *tail = NULL;
+
+void add_node(node *n)
+{
+    if (head == NULL) {
+        head = tail = n;
+    } else {
+        tail->next = n;
+        tail = n;
+    }
+}
 
 /* 
 Allocates memory by calling malloc.
@@ -44,12 +55,24 @@ WHERE is a string constant that records the filename and line number of caller.
 */
 void *slug_malloc ( size_t size, char *WHERE )
 {
+    void* addr; 
+
     TRACE("slug_malloc\n"); 
     printf("@ %s", WHERE);
 
+    /* Do the malloc */
+    addr = malloc(size);
+   
+   /* Make the node */
+    node *new_n = (node *) malloc(sizeof (node));
+    new_n->len = size;
+    new_n->addr = addr;
+	new_n->location = WHERE;
+	new_n->is_free = false;
+	new_n->next = NULL;
+    time(&(new_n->timestamp)); 
 
-    
-    return malloc(size);
+    return addr;
 }
 
 void slug_free ( void *addr, char *WHERE )
