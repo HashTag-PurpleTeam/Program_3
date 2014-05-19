@@ -52,13 +52,20 @@ Returns address of allocated memory.
 Records address, length, current timestamp, and location of the call in an
 internal data structure.
 WHERE is a string constant that records the filename and line number of caller.
+ * TODO Need to check if malloc returns NULL
 */
 void *slug_malloc ( size_t size, char *WHERE )
 {
     void* addr; 
 
-    TRACE("slug_malloc\n"); 
-    printf("@ %s", WHERE);
+    if (size <= 0) {
+        fprintf(stderr, "Allocation size less than 0.\n");
+    }
+
+    if (size > 134217728) { /* i.e. 128 MB */
+        fprintf(stderr, "Requested allocation size above 128 MiB.\n");
+        exit(1); /*terminate program*/
+    }
 
     /* Do the malloc */
     addr = malloc(size);
