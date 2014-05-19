@@ -21,21 +21,19 @@
 #include <time.h>
 #include <stdio.h>
 
+typedef struct node node;
 struct node 
 {
 	size_t len;
-	void addr;
+	void *addr;
 	time_t timestap;
 	char *location;
 	int is_free;
 	node *next;
 };
 
-struct malloc_list {
-	node head;
-	node tail;
-	node curr; /* can be used for traversing the list in for loops */
-};
+node head;
+node tail;
 
 /* 
 Allocates memory by calling malloc.
@@ -49,12 +47,9 @@ void *slug_malloc ( size_t size, char *WHERE )
     TRACE("slug_malloc\n"); 
     printf("@ %s", WHERE);
 
-	/* if (size <= 0) print to stderr, don't exit
-	if( size > 128 MB) print to stderr, exit the program */
-	unsigned request = malloc(sizeof(size));
-	return request;
-    /* LM: this is what I had before can delete */
-    /* return malloc(size); */
+
+    
+    return malloc(size);
 }
 
 void slug_free ( void *addr, char *WHERE )
