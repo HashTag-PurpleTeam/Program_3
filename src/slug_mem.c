@@ -33,7 +33,7 @@ struct malloc_list {
 
 struct node {
 	size_t size;
-	unsigned *addr;
+	void *addr;
 	time_t alloc_time;
 	time_t free_time;
 	char *alloc_location;
@@ -54,15 +54,7 @@ WHERE is a string constant that records the filename and line number of caller.
 void *slug_malloc ( size_t size, char *WHERE )
 {
 	node_ref tmp = malloc(sizeof(struct node));
-	char *what = "HELLO WORLD!";
-	if(list == NULL) {
-		list = malloc(sizeof(struct malloc_list));
-		list->head = list->tail = list->curr = NULL;
-		printf("list allocated \n");
-	}
-	
-	printf("WHERE = %s\n", WHERE);
-	printf("IN SLUG_MALLOC WOOHOO!\nsize=%d\n", size);
+	void *address;
 	
 	if(size <= 0) {
 		fprintf(stderr, "%s\n", strerror(errno));
@@ -73,10 +65,13 @@ void *slug_malloc ( size_t size, char *WHERE )
 		exit(1); /*terminate program*/
 	}
 	
-	printf("past size conditionals\n");
-
+	if(list == NULL) { /*allocate new list*/
+		list = malloc(sizeof(struct malloc_list));
+		list->head = list->tail = list->curr;
+	}
+	
+	/*initialize new list node*/
 	tmp->size = size;
-	printf("free my nigga earl\n");
 	tmp->addr = malloc(sizeof(size));
 	tmp->alloc_time = time(NULL);
 	tmp->free_time = 0;
@@ -84,11 +79,16 @@ void *slug_malloc ( size_t size, char *WHERE )
 	tmp->free_location = NULL;
 	tmp->is_free = 0;
 	tmp->next = NULL;
-	list->tail->next = tmp;
-	list->tail = list->tail->next;
-	free(tmp);
 	
-	return list->tail->addr;
+	if(list->tail == NULL){
+		list->head = list->tail = tmp;
+	}else{
+		list->tail->next = tmp;
+		list->tail = list->tail->next;
+	}
+	
+	address = list->tail->addr;
+	return address;
 	
     /*TRACE("slug_malloc\n"); 
     printf("@ %s", WHERE);*/
@@ -96,25 +96,52 @@ void *slug_malloc ( size_t size, char *WHERE )
     /* return malloc(size); */
 }
 
+/* still need to check if the call is on memory that is not the first byte of
+memory allocated by slug_malloc, in which case we'd error and terminate*/
 void slug_free ( void *addr, char *WHERE )
 {
-    TRACE("slug_free");    
-    printf("@ %s", WHERE);
+	int valid = 0;
+	
+    for(list->curr = list->head; list->curr != NULL; 
+	list->curr = list->curr->next){
+		if(list->curr->addr == addr){
+			if(list->curr->is_free == 1){
+				/*already freed, print error and terminate program*/
+				fprintf(stderr, "%s\n", strerror(errno));
+				exit(1); /*terminate program*/
+			}
+			valid = 1;
+			break;
+		}
+	}
+	
+	if(!valid){
+		/*address not allocated w/ slug_malloc, error & terminate */
+		fprintf(stderr, "%s\n", strerror(errno));
+		exit(1); /*terminate program*/
+	}
+	
+	free(addr);
+	list->curr->free_time = time(NULL);
+	list->curr->free_location = WHERE;
+	list->curr->is_free = 1;
+	
 }
 
 void slug_memstats ( void )
 {
 
-}
+} 
 
-/*void alloc_new_node( size_t size )
+/*void stats ( void )
 {
-	struct node tmp = malloc(sizeof(node));
-	tmp->size = size;
-	tmp->addr = malloc(sizeof(size));
-	tmp->alloc_time = time(NULL);
-	tmp->free_time = NULL;
-	tmp->location = 
-	m_list->tail->next = tmp;
-	m_list->tail = m_list->tail->next;
-} */   
+	for(list->curr = list->head; list->curr != NULL; 
+	list->curr = list->curr->next){
+		printf("Size = %d\n", list->curr->size);
+		printf(list->curr->is_free ? "Has been freed\n" : "Has not been freed\n");
+		printf("Location of allocation: %s\n", list->curr->alloc_location);
+		printf("Allocation timestamp: %d\n", list->curr->alloc_time);
+		printf("Location of free: %s\n", list->curr->free_location);
+		printf("Free timestamp: %d\n", list->curr->free_time);
+	}
+}*/
