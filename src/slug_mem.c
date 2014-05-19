@@ -1,26 +1,14 @@
 /* slug_mem.c
  *
  * CREATED: Leland Miller (5/14/14)
+ * TODO better error messages (location etc)
  */
-
-/* LM: Little trace macro, I couldn't figure out how 
- *     to get it to take variables though, so not
- *     too useful I guess. Can definitely remove 
- *     eventually.
- */
-#define __DEBUG_MODE__
-
-#ifdef __DEBUG_MODE__
-#define TRACE(s) printf(s)
-#else
-#define TRACE(s) 
-#endif
-
 
 #include <stdlib.h>
 #include <time.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <math.h>
 
 typedef struct node node;
 struct node 
@@ -29,7 +17,7 @@ struct node
 	void *addr;
 	time_t timestamp;
 	char *location;
-	bool is_free;
+	bool active;
 	node *next;
 };
 
@@ -75,21 +63,82 @@ void *slug_malloc ( size_t size, char *WHERE )
     new_n->len = size;
     new_n->addr = addr;
 	new_n->location = WHERE;
-	new_n->is_free = false;
+	new_n->active = true;
 	new_n->next = NULL;
     time(&(new_n->timestamp)); 
+
+    add_node(new_n);
 
     return addr;
 }
 
 void slug_free ( void *addr, char *WHERE )
 {
-    TRACE("slug_free");    
-    printf("@ %s", WHERE);
+    node *curr = head;
+    while (curr != NULL) {
+        if (curr->addr == addr) {
+            /* This is a valid free */
+            curr->active = false;
+            return free(addr);
+        }
+        curr = curr->next;
+    }
+    /* If we reach this point this is an invalid free */
+    fprintf(stderr, "%s: Call to free() made on unallocated address.\n", WHERE);
+    exit(1);
 }
 
 void slug_memstats ( void )
 {
-    TRACE("slug_memstats");
+    int total_allocations = 0,
+        active_allocations = 0,
+        total_size = 0;
+    double mean = 0,
+           std_dev = 0,
+           variance = 0,
+           curr_var = 0;
+    node *curr = head;
+
+    printf("=== slug_memstats() ===\n");
+    while (curr != NULL) {
+        total_allocations++;
+        total_size += curr->len;
+
+        printf("Time: %s", ctime(&(curr->timestamp)));
+        printf("Location: %s\n", curr->location);
+        printf("Address: %p\n", curr->addr);
+        /*size_t is unsigned int in minix */
+        printf("Size: %u\n", (unsigned int) curr->len); 
+        printf("Active: ");
+        if (curr->active) {
+            active_allocations++;
+            printf("true\n");
+        } else {
+            printf("false\n");
+        }
+        printf("***********************\n");
+
+        curr = curr->next;
+    }
+    mean = (double) total_size / total_allocations;
+
+    /* Now calc std dev. */
+    curr = head;
+    while (curr != NULL) {
+        curr_var = curr->len;
+        curr_var -= mean;
+        curr_var *= curr_var;
+        variance += curr_var;
+        curr = curr->next;
+    }
+    variance /= (double) total_allocations;
+    std_dev = sqrt(variance);
+
+    printf("Total allocations: %d\n", total_allocations);
+    printf("Active allocations: %d\n", active_allocations);
+    printf("Size of all allocations: %d\n", total_size);
+    printf("Mean of allocation sizes: %g\n", mean);
+    printf("Std. deviation of allocation sizes: %g\n", std_dev);
+
 }    
 
