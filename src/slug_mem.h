@@ -11,6 +11,7 @@
 /* LM: The following defines were recommended in the assignment
  *     specs. */
 #define malloc(s) slug_malloc((s), FILE_POS)
+#define free(a) slug_free((a), FILE_POS)
 
 #define FUNCTIONIZE(a,b) a(b)
 #define STRINGIZE(a) #a
