@@ -35,6 +35,25 @@ void add_node(node *n)
     }
 }
 
+/* Function that checks if memory
+   is still allocated. Then calls
+   slug_memstats() to report.
+*/
+void slug_check ( void )
+{
+    node *curr = head;
+    while (curr != NULL) {
+        if (curr->active == true) {
+            /* This is not freed */
+            fprintf(stderr, "All allocations not freed.\n");
+            slug_memstats();
+            return NULL;
+        }
+        curr = curr->next;
+    }
+    /* All allocations freed */
+}
+
 /* 
 Allocates memory by calling malloc.
 Returns address of allocated memory.
@@ -48,7 +67,7 @@ void *slug_malloc ( size_t size, char *WHERE )
     void* addr; 
 
     if (!set_exit) { /* sets the program to exit with a call to slug_memstats */
-        atexit(slug_memstats);
+        atexit(slug_check);
         set_exit = 1;
     }
     
