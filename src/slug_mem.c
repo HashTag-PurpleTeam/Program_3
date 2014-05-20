@@ -13,16 +13,17 @@
 typedef struct node node;
 struct node 
 {
-	size_t len;
-	void *addr;
-	time_t timestamp;
-	char *location;
-	bool active;
-	node *next;
+    size_t len;
+    void *addr;
+    time_t timestamp;
+    char *location;
+    bool active;
+    node *next;
 };
 
 node *head = NULL;
 node *tail = NULL;
+int set_exit = 0;
 
 void add_node(node *n)
 {
@@ -46,6 +47,11 @@ void *slug_malloc ( size_t size, char *WHERE )
 {
     void* addr; 
 
+    if (!set_exit) { /* sets the program to exit with a call to slug_memstats */
+        atexit(slug_memstats);
+        set_exit = 1;
+    }
+    
     if (size <= 0) {
         fprintf(stderr, "Allocation size less than 0.\n");
     }
@@ -62,9 +68,9 @@ void *slug_malloc ( size_t size, char *WHERE )
     node *new_n = (node *) malloc(sizeof (node));
     new_n->len = size;
     new_n->addr = addr;
-	new_n->location = WHERE;
-	new_n->active = true;
-	new_n->next = NULL;
+    new_n->location = WHERE;
+    new_n->active = true;
+    new_n->next = NULL;
     time(&(new_n->timestamp)); 
 
     add_node(new_n);
