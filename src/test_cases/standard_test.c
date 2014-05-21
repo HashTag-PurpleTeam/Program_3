@@ -9,5 +9,6 @@ int main(void){
 	*pointer = 24;
 	printf("%d\n", *pointer);
 	free(pointer);
+    slug_memstats();
 	return 0;
 }

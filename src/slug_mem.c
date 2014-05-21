@@ -122,7 +122,10 @@ void *slug_malloc ( size_t size, char *WHERE )
     node *new_n;
 
     if (!set_exit) { /* sets the program to exit with a call to slug_memstats */
-        atexit(slug_check);
+        if (atexit(slug_check)) {
+            fprintf(stderr, "Error registering exit handler for leak checking. ");
+            fprintf(stderr, "Leak checking will not work.\n");
+        }
         set_exit = 1;
     }
     
