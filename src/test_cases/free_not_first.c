@@ -2,12 +2,13 @@
 #include "slug_mem.h"
 
 int main(void){
-	int *pointer, *middle;
-	pointer = malloc(1024);
-	if (pointer == 0){ printf("error\n"); return 1; }
-	*pointer = 24;
-	printf("%d\n", *pointer);
-	middle = pointer + (sizeof(pointer)/2);
-	free(middle);
-	return 0;
+    int *pointer1, *pointer2;
+    pointer1 = malloc(1024);
+    free(pointer1);
+
+    pointer2 = malloc(1024);
+    pointer2++;
+    free(pointer2);
+    
+    return(0);
 }
