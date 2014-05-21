@@ -11,6 +11,8 @@ then an error message is printed and slug_memstats() is ran, which displays info
 The main purpose of this program is for developers to debug their program in regards to memory leaks.
 
 Building & Running:
+To get all files in the same directory, first make setup_test.sh executable (chmod), and then run it.
+This will make a new directory, "tmp" in which all included files should now be. Go into the tmp directory.
 With all included files in the same directory, running “make” from the command line should compile all files 
 and run run_tests.sh, which will execute a series of test programs that do different things. 
 Each test program will create a .out file and a .err file; the .out file will show the output of slug_memstats() 
