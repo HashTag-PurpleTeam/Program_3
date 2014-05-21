@@ -167,11 +167,12 @@ void slug_free ( void *addr, char *WHERE )
                 return;
             } else { /* Tried to free twice */
                 fprintf (stderr, "%s: Tried to free an already freed allocation.\n", WHERE);
-				return;
+				exit(1);
             }
         } else {
 			if ((curr->addr < addr) && (((size_t)curr->addr + curr->len) >= address)){
 				fprintf(stderr, "%s: Call to free() made on pointer of nonstarting bit.\n", WHERE);
+				exit(1);
 			}
 		}
         curr = curr->next;
