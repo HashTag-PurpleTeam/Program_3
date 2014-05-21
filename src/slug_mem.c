@@ -155,6 +155,10 @@ void *slug_malloc ( size_t size, char *WHERE )
 void slug_free ( void *addr, char *WHERE )
 {
     node *curr = head;
+	size_t address = (size_t *) *addr;
+	
+	
+	
     while (curr != NULL) {
         if (curr->addr == addr) {
             if (curr->active) {
@@ -166,7 +170,11 @@ void slug_free ( void *addr, char *WHERE )
                 fprintf (stderr, "%s: Tried to free an already freed allocation.\n", WHERE);
 				return;
             }
-        }
+        } else {
+			if ((curr->addr < addr) && (((size_t *)curr->addr + curr->len) >= address)){
+				fprintf(stderr, "%s: Call to free() made on pointer of nonstarting bit.\n", WHERE);
+			}
+		}
         curr = curr->next;
     }
     /* If we reach this point this is an invalid free */
