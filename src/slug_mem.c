@@ -119,7 +119,7 @@ WHERE is a string constant that records the filename and line number of caller.
 void *slug_malloc ( size_t size, char *WHERE )
 {
     void* addr; 
-	node *new_n;
+    node *new_n;
 
     if (!set_exit) { /* sets the program to exit with a call to slug_memstats */
         atexit(slug_check);
@@ -156,11 +156,15 @@ void slug_free ( void *addr, char *WHERE )
 {
     node *curr = head;
     while (curr != NULL) {
-        if (curr->addr == addr && curr->active) {
-            /* This is a valid free */
-            curr->active = false;
-            free(addr);
-			return;
+        if (curr->addr == addr) {
+            if (curr->active) {
+                /* This is a valid free */
+                curr->active = false;
+                free(addr);
+                return;
+            } else { /* Tried to free twice */
+                fprintf (stderr, "%s: Tried to free an already freed allocation.\n", WHERE);
+            }
         }
         curr = curr->next;
     }
