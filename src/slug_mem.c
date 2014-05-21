@@ -101,7 +101,7 @@ void slug_check ( void )
             /* This is not freed */
             fprintf(stderr, "All allocations not freed.\n");
             slug_memstats();
-            return NULL;
+            return;
         }
         curr = curr->next;
     }
