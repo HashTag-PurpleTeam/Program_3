@@ -79,20 +79,6 @@ void slug_memstats ( void )
 
 }
 
-void handler (void)
-{
-	node *curr = head;
-	while(curr != NULL){
-		if(curr->active){
-			fprintf(stderr, "ERROR: memory leaks detected\n");
-			slug_memstats();
-			return;
-		}
-		curr = curr->next;
-	}
-	printf("No memory leaks detected.\n");
-}
-
 void add_node(node *n)
 {
     if (head == NULL) {
