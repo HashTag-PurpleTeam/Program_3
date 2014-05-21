@@ -164,6 +164,7 @@ void slug_free ( void *addr, char *WHERE )
                 return;
             } else { /* Tried to free twice */
                 fprintf (stderr, "%s: Tried to free an already freed allocation.\n", WHERE);
+				return;
             }
         }
         curr = curr->next;
