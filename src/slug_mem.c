@@ -25,75 +25,6 @@ node *head = NULL;
 node *tail = NULL;
 int set_exit = 0;
 
-void add_node(node *n)
-{
-    if (head == NULL) {
-        head = tail = n;
-    } else {
-        tail->next = n;
-        tail = n;
-    }
-}
-
-/* 
-Allocates memory by calling malloc.
-Returns address of allocated memory.
-Records address, length, current timestamp, and location of the call in an
-internal data structure.
-WHERE is a string constant that records the filename and line number of caller.
- * TODO Need to check if malloc returns NULL
-*/
-void *slug_malloc ( size_t size, char *WHERE )
-{
-    void* addr; 
-
-    if (!set_exit) { /* sets the program to exit with a call to slug_memstats */
-        atexit(slug_memstats);
-        set_exit = 1;
-    }
-    
-    if (size <= 0) {
-        fprintf(stderr, "Allocation size less than 0.\n");
-    }
-
-    if (size > 134217728) { /* i.e. 128 MB */
-        fprintf(stderr, "Requested allocation size above 128 MiB.\n");
-        exit(1); /*terminate program*/
-    }
-
-    /* Do the malloc */
-    addr = malloc(size);
-   
-   /* Make the node */
-    node *new_n = (node *) malloc(sizeof (node));
-    new_n->len = size;
-    new_n->addr = addr;
-    new_n->location = WHERE;
-    new_n->active = true;
-    new_n->next = NULL;
-    time(&(new_n->timestamp)); 
-
-    add_node(new_n);
-
-    return addr;
-}
-
-void slug_free ( void *addr, char *WHERE )
-{
-    node *curr = head;
-    while (curr != NULL) {
-        if (curr->addr == addr) {
-            /* This is a valid free */
-            curr->active = false;
-            return free(addr);
-        }
-        curr = curr->next;
-    }
-    /* If we reach this point this is an invalid free */
-    fprintf(stderr, "%s: Call to free() made on unallocated address.\n", WHERE);
-    exit(1);
-}
-
 void slug_memstats ( void )
 {
     int total_allocations = 0,
@@ -146,5 +77,90 @@ void slug_memstats ( void )
     printf("Mean of allocation sizes: %g\n", mean);
     printf("Std. deviation of allocation sizes: %g\n", std_dev);
 
+}
+
+void handler (void)
+{
+	node *curr = head;
+	while(curr != NULL){
+		if(curr->active){
+			fprintf(stderr, "ERROR: memory leaks detected\n");
+			slug_memstats();
+			return;
+		}
+		curr = curr->next;
+	}
+	printf("No memory leaks detected.\n");
+}
+
+void add_node(node *n)
+{
+    if (head == NULL) {
+        head = tail = n;
+    } else {
+        tail->next = n;
+        tail = n;
+    }
+}
+
+/* 
+Allocates memory by calling malloc.
+Returns address of allocated memory.
+Records address, length, current timestamp, and location of the call in an
+internal data structure.
+WHERE is a string constant that records the filename and line number of caller.
+ * TODO Need to check if malloc returns NULL
+*/
+void *slug_malloc ( size_t size, char *WHERE )
+{
+    void* addr; 
+	node *new_n;
+
+    if (!set_exit) { /* sets the program to exit with a call to slug_memstats */
+        atexit(handler);
+        set_exit = 1;
+    }
+    
+    if (size <= 0) {
+        fprintf(stderr, "Allocation size less than 0.\n");
+    }
+
+    if (size > 134217728) { /* i.e. 128 MB */
+        fprintf(stderr, "Requested allocation size above 128 MiB.\n");
+        exit(1); /*terminate program*/
+    }
+
+    /* Do the malloc */
+    addr = malloc(size);
+   
+   /* Make the node */
+    new_n = (node *) malloc(sizeof (node));
+    new_n->len = size;
+    new_n->addr = addr;
+    new_n->location = WHERE;
+    new_n->active = true;
+    new_n->next = NULL;
+    time(&(new_n->timestamp)); 
+
+    add_node(new_n);
+
+    return addr;
+}
+
+void slug_free ( void *addr, char *WHERE )
+{
+    node *curr = head;
+    while (curr != NULL) {
+        if (curr->addr == addr && curr->active) {
+            /* This is a valid free */
+            curr->active = false;
+            free(addr);
+			return;
+        }
+        curr = curr->next;
+    }
+    /* If we reach this point this is an invalid free */
+    fprintf(stderr, "%s: Call to free() made on unallocated address.\n", WHERE);
+    exit(1);
 }    
 
