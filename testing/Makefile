@@ -11,7 +11,7 @@ free_invalid: free_invalid.c
 	cc -o free_invalid free_invalid.c
 	
 free_already_freed: free_already_freed.c
-	cc -o free_already-freed free_already_freed.c
+	cc -o free_already_freed free_already_freed.c
 	
 free_not_first: free_not_first.c
 	cc -o free_not_first free_not_first.c
