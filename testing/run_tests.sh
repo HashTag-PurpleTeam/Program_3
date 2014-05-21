@@ -10,19 +10,10 @@ mkdir tmp
 echo "**********"
 echo "# Minix slug_malloc() & slug_free() Tests"
 
-# Compile Tests
-echo
-echo "Compile the Tests."
-
-cc -c standard_test.c -o standard_test
-cc -c free_invalid.c -o free_invalid
-cc -c free_already_freed.c -o free_already_freed
-cc -c free_not_first.c -o free_not_first
-cc -c exit_no_free.c -o exit_no_free
 
 # Test 1
 echo
-echo "## Test 1"
+echo "## Test 1 -- This is the standard test"
 echo
 echo "This test does not have any errors and is the base for our other tests."
 
@@ -33,7 +24,7 @@ echo "This test does not have any errors and is the base for our other tests."
 
 
 echo
-echo "## Test 2"
+echo "## Test 2 -- This is the invalid memory test"
 echo
 echo "This test tries to free memory that was never allocated."
 
@@ -42,7 +33,7 @@ echo "This test tries to free memory that was never allocated."
 # Test 3
 
 echo
-echo "## Test 3"
+echo "## Test 3 -- This is the already freed memory test"
 echo
 echo "This test tries to free memory that was already freed."
 
@@ -51,7 +42,7 @@ echo "This test tries to free memory that was already freed."
 # Test 4
 
 echo
-echo "## Test 4"
+echo "## Test 4 -- This is the free not first test"
 echo
 echo "This test tries to free memory with a pointer to the middle of the data."
 
@@ -60,7 +51,7 @@ echo "This test tries to free memory with a pointer to the middle of the data."
 # Test 5
 
 echo
-echo "## Test 5"
+echo "## Test 5 -- This is the exit without free test"
 echo
 echo "This test exits without freeing all memory."
 
