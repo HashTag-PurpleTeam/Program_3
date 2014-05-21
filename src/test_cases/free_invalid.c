@@ -7,7 +7,7 @@ int main(void){
 	if (pointer == 0){ printf("error\n"); return 1; }
 	*pointer = 24;
 	printf("%d\n", *pointer);
-	pointer2 = pointer + (sizeof(pointer)/2);
+	pointer2 = pointer - (sizeof(pointer)/2);
 	free(pointer);
 	free(pointer2);
 	return 1;
