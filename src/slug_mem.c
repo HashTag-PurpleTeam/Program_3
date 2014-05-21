@@ -155,9 +155,8 @@ void *slug_malloc ( size_t size, char *WHERE )
 void slug_free ( void *addr, char *WHERE )
 {
     node *curr = head;
-	size_t address = (size_t *) *addr;
-	
-	
+	/* can't cast void* to size_t, need another workaround */
+	size_t *address = (size_t *) *addr;
 	
     while (curr != NULL) {
         if (curr->addr == addr) {
